@@ -1,8 +1,8 @@
 // Database TypeScript definitions matching MargDarshak Supabase Schema
 
-export type ProfileStatus = 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED';
+export type ProfileStatus = 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED' | 'REVOKED';
 
-export type QRStatus = 'REQUESTED' | 'GENERATED' | 'ISSUED' | 'ACTIVE' | 'SUSPENDED' | 'REVOKED';
+export type QRStatus = 'PENDING' | 'REQUESTED' | 'GENERATED' | 'ISSUED' | 'ACTIVE' | 'SUSPENDED' | 'REVOKED';
 
 export type ProfileType = 'DEPENDENT' | 'ACCESSORY';
 

@@ -86,6 +86,7 @@ export const QRManagement: React.FC = () => {
 
   const tabs: { label: string; value?: QRStatus }[] = [
     { label: 'All Tags', value: undefined },
+    { label: 'Requested', value: 'REQUESTED' },
     { label: 'Generated', value: 'GENERATED' },
     { label: 'Issued', value: 'ISSUED' },
     { label: 'Active', value: 'ACTIVE' },

@@ -32,7 +32,36 @@ export const qrService = {
     }
 
     if (existing) {
-      // Re-use existing record
+      // Flutter already created a qr_codes row with status REQUESTED or PENDING.
+      // Update the EXISTING record to GENERATED and record generated_at timestamp.
+      if (existing.status === 'REQUESTED' || existing.status === 'PENDING') {
+        const now = new Date().toISOString();
+        const { data: updated, error: updateError } = await supabase
+          .from('qr_codes')
+          .update({
+            status: 'GENERATED',
+            generated_at: now,
+            qr_payload: payload,
+          })
+          .eq('id', existing.id)
+          .select()
+          .single();
+
+        if (!updateError && updated) {
+          // Keep safety_profiles.qr_status in sync
+          await supabase
+            .from('safety_profiles')
+            .update({ qr_status: 'GENERATED' })
+            .eq('id', profile.id);
+
+          return {
+            qrRecord: updated as QRCodeRecord,
+            isNewlyGenerated: true,
+          };
+        }
+      }
+
+      // Re-use existing record if already GENERATED, ISSUED, or ACTIVE
       return {
         qrRecord: existing as QRCodeRecord,
         isNewlyGenerated: false,

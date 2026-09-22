@@ -81,7 +81,7 @@ export const CommandCenter: React.FC = () => {
           <div className="text-xs">
             <h4 className="font-bold text-amber-900 mb-0.5">Supabase Anon Key Configuration Required</h4>
             <p className="text-amber-800">
-              The application is configured for project <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">https://jcinxlylijhteujzxyow.supabase.co</code>.
+              The application is configured for project <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">https://jcinlxylijhteujzxyow.supabase.co</code>.
               Please add your publishable anon key to <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">.env.local</code> as <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">VITE_SUPABASE_ANON_KEY</code> to enable live database queries.
             </p>
           </div>

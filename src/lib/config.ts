@@ -1,7 +1,7 @@
 // Application runtime configuration
 
 export const CONFIG = {
-  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || 'https://jcinxlylijhteujzxyow.supabase.co',
+  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || 'https://jcinlxylijhteujzxyow.supabase.co',
   SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   // Default to production domain, fallback to current origin if in dev and not specified
   PUBLIC_APP_URL: (import.meta.env.VITE_PUBLIC_APP_URL || 'https://margdarshak.app').replace(/\/$/, ''),
