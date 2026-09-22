@@ -14,7 +14,7 @@ import { PublicSafetyPage } from './pages/public/PublicSafetyPage';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Public QR Safety Route */}
         <Route path="/safety/:safetyId" element={<PublicSafetyPage />} />

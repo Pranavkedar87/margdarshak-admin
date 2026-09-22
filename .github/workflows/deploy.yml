@@ -27,14 +27,16 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
       - name: Build
         env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
           VITE_SUPABASE_URL: "https://jcinlxylijhteujzxyow.supabase.co"
           VITE_PUBLIC_APP_URL: "https://margdarshak.app"
           VITE_SUPABASE_ANON_KEY: sb_publishable_wTSRXCVcYHiOh0wXWySf3w_0bjpvrZO
         run: npm run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
