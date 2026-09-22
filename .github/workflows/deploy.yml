@@ -1,8 +1,8 @@
-name: Deploy MargDarshak Web to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -12,36 +12,34 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm ci
-
-      - name: Build Production Web App
+      - name: Build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://jcinxlylijhteujzxyow.supabase.co' }}
+          VITE_SUPABASE_URL: "https://jcinlxylijhteujzxyow.supabase.co"
+          VITE_PUBLIC_APP_URL: "https://margdarshak.app"
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_PUBLIC_APP_URL: ${{ secrets.VITE_PUBLIC_APP_URL || 'https://margdarshak.app' }}
         run: npm run build
-
-      - name: Upload GitHub Pages Artifact
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
-
+          
   deploy:
     environment:
       name: github-pages
