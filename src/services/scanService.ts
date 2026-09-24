@@ -21,7 +21,7 @@ export const scanService = {
           location_name,
           scanned_at,
           scanner_user_agent,
-          status,
+          scan_status,
           safety_profiles (
             name,
             safety_id,
@@ -46,7 +46,7 @@ export const scanService = {
         location_name: row.location_name || null,
         scanned_at: row.scanned_at,
         scanner_user_agent: row.scanner_user_agent || null,
-        status: row.status || 'RECORDED',
+        status: row.scan_status || 'RECORDED',
         safety_profile: row.safety_profiles || null,
       }));
     } catch (err) {
