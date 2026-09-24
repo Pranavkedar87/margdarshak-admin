@@ -62,7 +62,7 @@ export const publicSafetyService = {
     // 3. Third fallback: Client-side safe projection (Zero Private Data Exposure)
     const { data: profile, error: profErr } = await supabase
       .from('safety_profiles')
-      .select('id, safety_id, profile_type, name, photo_url, status, qr_status, last_scanned_at, last_scan_latitude, last_scan_longitude, last_scan_location')
+      .select('id, safety_id, owner_user_id, profile_type, name, photo_url, status, qr_status, last_scanned_at, last_scan_latitude, last_scan_longitude, last_scan_location')
       .eq('safety_id', cleanSafetyId)
       .maybeSingle();
 
@@ -181,6 +181,34 @@ export const publicSafetyService = {
       };
     } else {
       // ACCESSORY
+      // Security rule: Only resolve owner phone if profile is VERIFIED and active/valid (not suspended/revoked)
+      const canAccessContact = 
+        profile.status === 'VERIFIED' && 
+        profile.qr_status !== 'SUSPENDED' && 
+        profile.qr_status !== 'REVOKED';
+
+      let sanitizedOwnerPhone: string | null = null;
+
+      if (canAccessContact && (profile as any).owner_user_id) {
+        // Resolve strictly through existing owner mapping:
+        // safety_profiles.owner_user_id -> margdarshak_user_map.id -> margdarshak_user_map.phone
+        // NEVER use family_safety_profiles or any unrelated contacts!
+        const { data: userMap } = await supabase
+          .from('margdarshak_user_map')
+          .select('phone')
+          .eq('id', (profile as any).owner_user_id)
+          .maybeSingle();
+
+        if (userMap?.phone) {
+          const raw = String(userMap.phone).trim();
+          const hasPlus = raw.startsWith('+');
+          const digits = raw.replace(/\D/g, '');
+          if (digits.length >= 7) {
+            sanitizedOwnerPhone = hasPlus ? `+${digits}` : digits;
+          }
+        }
+      }
+
       const { data: acc } = await supabase
         .from('safety_accessories')
         .select('accessory_name, accessory_type, brand, model, color, description, photo_url')
@@ -198,6 +226,7 @@ export const publicSafetyService = {
         last_scan_latitude: profile.last_scan_latitude ? Number(profile.last_scan_latitude) : null,
         last_scan_longitude: profile.last_scan_longitude ? Number(profile.last_scan_longitude) : null,
         last_scan_location: profile.last_scan_location,
+        owner_action_phone: sanitizedOwnerPhone,
         accessory: {
           item_name: acc?.accessory_name || profile.name,
           accessory_type: acc?.accessory_type,
@@ -205,6 +234,7 @@ export const publicSafetyService = {
           model: acc?.model,
           color: acc?.color,
           description: acc?.description,
+          owner_action_phone: sanitizedOwnerPhone,
         }
       };
     }

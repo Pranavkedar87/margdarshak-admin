@@ -124,6 +124,8 @@ export interface PublicSafetyResponse {
   last_scan_latitude?: number | null;
   last_scan_longitude?: number | null;
   last_scan_location?: string | null;
+  // Controlled accessory owner contact action field (Only for verified active tel: action)
+  owner_action_phone?: string | null;
   // Accessory safe fields
   accessory?: {
     item_name: string;
@@ -132,5 +134,6 @@ export interface PublicSafetyResponse {
     model?: string | null;
     color?: string | null;
     description?: string | null;
+    owner_action_phone?: string | null;
   } | null;
 }

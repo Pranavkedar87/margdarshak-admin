@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Shield, Package, Tag, Phone, ArrowLeft } from 'lucide-react';
+import React from 'react';
+import { Shield, Package, Phone, Navigation, ExternalLink } from 'lucide-react';
 import { PublicSafetyResponse } from '../../types/database';
 import { DetectedLocationCard } from './DetectedLocationCard';
 import { EmergencyAssistanceCard } from './EmergencyAssistanceCard';
@@ -9,7 +9,6 @@ interface AccessoryViewProps {
 }
 
 export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
-  const [showReporting, setShowReporting] = useState(false);
   const acc = data.accessory;
 
   return (
@@ -87,56 +86,51 @@ export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
           Found This Item?
         </h3>
 
-        {!showReporting ? (
-          <div className="space-y-2">
-            <button
-              onClick={() => setShowReporting(true)}
+        <div className="space-y-2">
+          {/* Real Contact Owner Button (Only when verified, active, and real phone exists in margdarshak_user_map) */}
+          {data.owner_action_phone ? (
+            <a
+              href={`tel:${data.owner_action_phone}`}
               className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1E3482] transition-colors shadow-xs"
             >
-              <Tag className="w-4 h-4" />
-              <span>Report Found Item / Recovery Assistance</span>
-            </button>
-
-            <p className="text-[11px] text-gray-400 text-center">
-              Owner identity is protected through the MargDarshak recovery grid.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3 animate-in fade-in duration-150">
-            <div className="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200 text-xs text-blue-950 space-y-2">
-              <span className="font-bold block text-[#2844A8]">
-                Item Recovery Instructions
+              <Phone className="w-4 h-4" />
+              <span>Contact Owner</span>
+            </a>
+          ) : (
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs text-gray-700 text-left space-y-1">
+              <span className="font-bold text-gray-900 block">
+                Item Recovery Assistance
               </span>
-              <p className="text-[11px] text-blue-900 leading-relaxed">
-                Please hand over this item to the nearest MargDarshak Sevak assistance desk, railway station master, or local police station with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
-              </p>
-              <p className="text-[11px] text-blue-900 leading-relaxed">
-                The registered owner will be notified with the recorded recovery location.
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                Owner direct phone is not available for this item. Please hand over found property to the nearest MargDarshak Sevak assistance desk, station master, or police with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
               </p>
             </div>
+          )}
 
-            <div className="grid grid-cols-2 gap-2">
-              <a
-                href="tel:112"
-                className="flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl font-bold text-xs text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-2xs"
-              >
-                <Phone className="w-3.5 h-3.5" />
-                <span>Call 112 Help</span>
-              </a>
-              <button
-                onClick={() => setShowReporting(false)}
-                className="flex items-center justify-center space-x-1 py-2.5 px-3 rounded-xl font-semibold text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Close</span>
-              </button>
-            </div>
-          </div>
-        )}
+          {data.last_scan_latitude !== null && data.last_scan_longitude !== null && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${data.last_scan_latitude},${data.last_scan_longitude}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors shadow-2xs"
+            >
+              <Navigation className="w-3.5 h-3.5 text-[#2844A8]" />
+              <span>Track Latest Location</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+          )}
+
+          <p className="text-[11px] text-gray-400 text-center">
+            Owner phone is protected through the MargDarshak safety network. Direct dial connects via native dialer.
+          </p>
+        </div>
       </div>
 
       {/* 4. Emergency Assistance Panel */}
-      <EmergencyAssistanceCard safetyId={data.safety_id} />
+      <EmergencyAssistanceCard
+        safetyId={data.safety_id}
+        guardianActionPhone={data.owner_action_phone}
+      />
     </div>
   );
 };
