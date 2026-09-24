@@ -104,12 +104,12 @@ export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
               MargDarshak Item Recovery
             </h3>
 
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 text-left space-y-1">
-              <span className="font-bold block text-amber-950">
-                Secure Contact Relay — Coming Soon
+            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-950 text-left space-y-1">
+              <span className="font-bold block text-[#2844A8]">
+                Item Recovery Assistance
               </span>
-              <p className="text-[11px] text-amber-800 leading-relaxed">
-                Direct telephony/SMS masking relay is being deployed in the MargDarshak cloud. In the meantime, please surrender found luggage to the nearest MargDarshak Sevak desk or railway lost property office with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
+              <p className="text-[11px] text-blue-900 leading-relaxed">
+                Owner contact credentials are kept private. Please surrender found luggage or item to the nearest MargDarshak Sevak desk, station master, or police with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
               </p>
             </div>
 

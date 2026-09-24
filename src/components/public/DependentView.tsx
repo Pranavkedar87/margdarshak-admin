@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Heart, Phone, Info, CheckCircle2 } from 'lucide-react';
 import { PublicSafetyResponse } from '../../types/database';
 
@@ -7,7 +7,6 @@ interface DependentViewProps {
 }
 
 export const DependentView: React.FC<DependentViewProps> = ({ data }) => {
-  const [showContactModal, setShowContactModal] = useState(false);
   const info = data.emergency_info;
 
   const hasAnyEmergencyInfo = Boolean(
@@ -123,50 +122,20 @@ export const DependentView: React.FC<DependentViewProps> = ({ data }) => {
             <span>Call Guardian</span>
           </a>
         ) : (
-          <button
-            onClick={() => setShowContactModal(true)}
-            className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1F368A] transition-colors shadow-xs"
-          >
-            <Phone className="w-4 h-4" />
-            <span>Emergency Assistance</span>
-          </button>
+          <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs text-gray-700 text-left space-y-1">
+            <span className="font-bold text-gray-900 block">
+              Emergency Assistance
+            </span>
+            <p className="text-[11px] text-gray-600 leading-relaxed">
+              No direct guardian phone is registered for this profile. Please contact the nearest MargDarshak Sevak desk, emergency booth, or local authorities with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
+            </p>
+          </div>
         )}
 
         <p className="text-[11px] text-gray-400">
           Direct dial connects to registered guardian • Numbers are protected
         </p>
       </div>
-
-      {/* Contact Relay Modal (Controlled Placeholder) */}
-      {showContactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center space-y-4 border border-gray-200 shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-blue-50 text-[#2844A8] mx-auto flex items-center justify-center">
-              <Phone className="w-6 h-6" />
-            </div>
-
-            <h3 className="text-base font-bold text-gray-900">
-              MargDarshak Emergency Relay
-            </h3>
-
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 text-left space-y-1">
-              <span className="font-bold block text-amber-950">
-                Secure Contact Relay — Coming Soon
-              </span>
-              <p className="text-[11px] text-amber-800 leading-relaxed">
-                Direct telephony/SMS masking relay is being deployed in the MargDarshak cloud. In the meantime, please reach the nearest MargDarshak Sevak or local police with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
-              </p>
-            </div>
-
-            <button
-              onClick={() => setShowContactModal(false)}
-              className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

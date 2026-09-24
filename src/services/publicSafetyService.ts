@@ -84,8 +84,11 @@ export const publicSafetyService = {
     }
 
     if (profile.profile_type === 'DEPENDENT') {
-      // Security rule: Only fetch guardian_phone if profile is VERIFIED and ACTIVE
-      const canAccessContact = profile.status === 'VERIFIED' && profile.qr_status === 'ACTIVE';
+      // Security rule: Only fetch guardian_phone if profile is VERIFIED and active/valid (not suspended/revoked)
+      const canAccessContact = 
+        profile.status === 'VERIFIED' && 
+        profile.qr_status !== 'SUSPENDED' && 
+        profile.qr_status !== 'REVOKED';
       const selectFields = [
         'full_name',
         'age',
