@@ -6,9 +6,12 @@ export interface DashboardKPIs {
   pendingRequests: number;
   verifiedProfiles: number;
   rejectedProfiles: number;
+  requestedQRs: number;
   generatedQRs: number;
+  issuedQRs: number;
   activeQRs: number;
   recentScans: number;
+  gpsScans: number;
 }
 
 export const safetyService = {
@@ -22,9 +25,12 @@ export const safetyService = {
         pendingRequests: 0,
         verifiedProfiles: 0,
         rejectedProfiles: 0,
+        requestedQRs: 0,
         generatedQRs: 0,
+        issuedQRs: 0,
         activeQRs: 0,
         recentScans: 0,
+        gpsScans: 0,
       };
     }
 
@@ -35,17 +41,23 @@ export const safetyService = {
         pendingRes,
         verifiedRes,
         rejectedRes,
+        requestedQrRes,
         generatedQrRes,
+        issuedQrRes,
         activeQrRes,
-        scansRes
+        scansRes,
+        gpsScansRes
       ] = await Promise.all([
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }),
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('status', 'PENDING_REVIEW'),
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('status', 'VERIFIED'),
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('status', 'REJECTED'),
+        supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('qr_status', 'REQUESTED'),
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('qr_status', 'GENERATED'),
+        supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('qr_status', 'ISSUED'),
         supabase.from('safety_profiles').select('*', { count: 'exact', head: true }).eq('qr_status', 'ACTIVE'),
         supabase.from('qr_scan_events').select('*', { count: 'exact', head: true }),
+        supabase.from('qr_scan_events').select('*', { count: 'exact', head: true }).not('latitude', 'is', null),
       ]);
 
       return {
@@ -53,9 +65,12 @@ export const safetyService = {
         pendingRequests: pendingRes.count || 0,
         verifiedProfiles: verifiedRes.count || 0,
         rejectedProfiles: rejectedRes.count || 0,
+        requestedQRs: requestedQrRes.count || 0,
         generatedQRs: generatedQrRes.count || 0,
+        issuedQRs: issuedQrRes.count || 0,
         activeQRs: activeQrRes.count || 0,
         recentScans: scansRes.count || 0,
+        gpsScans: gpsScansRes.count || 0,
       };
     } catch (err) {
       console.error('Failed to load dashboard KPIs:', err);
