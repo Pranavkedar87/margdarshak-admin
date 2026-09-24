@@ -32,11 +32,11 @@ export const App: React.FC = () => {
           <Route path="settings" element={<Settings />} />
         </Route>
 
-        {/* Root Redirect to Admin Pending Requests */}
-        <Route path="/" element={<Navigate to="/admin/pending" replace />} />
+        {/* Root Redirect to Admin Command Center */}
+        <Route path="/" element={<Navigate to="/admin" replace />} />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/admin/pending" replace />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </BrowserRouter>
   );
