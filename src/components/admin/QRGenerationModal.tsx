@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Download, Printer, CheckCircle, Shield, AlertCircle } from 'lucide-react';
 import { SafetyProfile } from '../../types/database';
 import { qrService } from '../../services/qrService';
@@ -80,19 +81,26 @@ export const QRGenerationModal: React.FC<QRGenerationModalProps> = ({
 
   const handlePrint = (type: 'card' | 'wristband' | 'sticker') => {
     setPrintMode(type);
+    const cleanup = () => {
+      setPrintMode(null);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
     setTimeout(() => {
       window.print();
-    }, 200);
+    }, 250);
   };
 
   return (
     <>
-      {/* Hidden print container when printing */}
-      {printMode && (
-        <div className="hidden print:block printable-area">
-          <PrintTemplates profile={profile} qrDataUrl={qrPngUrl} templateType={printMode} />
-        </div>
-      )}
+      {/* Isolated Print Portal: rendered directly into #print-root (outside #root) to guarantee zero dashboard overlay and exactly 1 page */}
+      {printMode &&
+        createPortal(
+          <div className="print-document">
+            <PrintTemplates profile={profile} qrDataUrl={qrPngUrl} templateType={printMode} />
+          </div>,
+          document.getElementById('print-root') || document.body
+        )}
 
       {/* Main Modal UI */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs no-print animate-in fade-in duration-200">
