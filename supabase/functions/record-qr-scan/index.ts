@@ -17,7 +17,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { safety_id, latitude, longitude, scanner_user_agent } = body;
+    const { safety_id, latitude, longitude, permission_granted, scanner_user_agent } = body;
 
     if (!safety_id) {
       return new Response(
@@ -26,20 +26,22 @@ serve(async (req) => {
       );
     }
 
-    // Latitude and longitude must be real valid numbers
-    if (typeof latitude !== "number" || typeof longitude !== "number") {
-      return new Response(
-        JSON.stringify({ error: "Valid latitude and longitude numbers are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // If permission is granted, latitude and longitude must be valid numbers
+    if (permission_granted !== false) {
+      if (typeof latitude !== "number" || typeof longitude !== "number") {
+        return new Response(
+          JSON.stringify({ error: "Valid latitude and longitude numbers are required when permission is granted" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
-    // Basic coordinate range validation
-    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-      return new Response(
-        JSON.stringify({ error: "Coordinates out of geographic range" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Basic coordinate range validation
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        return new Response(
+          JSON.stringify({ error: "Coordinates out of geographic range" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -68,12 +70,13 @@ serve(async (req) => {
       .from("qr_scan_events")
       .insert({
         safety_profile_id: profile.id,
-        latitude,
-        longitude,
+        latitude: permission_granted === false ? null : latitude,
+        longitude: permission_granted === false ? null : longitude,
         location_name: null, // Never fake location names
+        permission_granted: permission_granted !== false,
         scanned_at: now,
         scanner_user_agent: userAgent,
-        status: "RECORDED"
+        scan_status: "RECORDED"
       });
 
     if (insertErr) {
@@ -84,19 +87,21 @@ serve(async (req) => {
       );
     }
 
-    // 2. Update safety_profiles last scan telemetry
-    const { error: updateErr } = await supabase
-      .from("safety_profiles")
-      .update({
-        last_scanned_at: now,
-        last_scan_latitude: latitude,
-        last_scan_longitude: longitude,
-        last_scan_location: null,
-      })
-      .eq("id", profile.id);
+    // 2. Update safety_profiles last scan telemetry (only if granted)
+    if (permission_granted !== false) {
+      const { error: updateErr } = await supabase
+        .from("safety_profiles")
+        .update({
+          last_scanned_at: now,
+          last_scan_latitude: latitude,
+          last_scan_longitude: longitude,
+          last_scan_location: null,
+        })
+        .eq("id", profile.id);
 
-    if (updateErr) {
-      console.warn("Failed to update profile telemetry:", updateErr);
+      if (updateErr) {
+        console.warn("Failed to update profile telemetry:", updateErr);
+      }
     }
 
     return new Response(

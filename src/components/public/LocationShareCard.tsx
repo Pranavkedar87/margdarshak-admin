@@ -33,6 +33,7 @@ export const LocationShareCard: React.FC<LocationShareCardProps> = ({ safetyId }
             safety_id: safetyId,
             latitude: lat,
             longitude: lng,
+            permission_granted: true,
           });
           setRecordedCoords({ lat, lng });
           setStatus('success');
@@ -46,6 +47,13 @@ export const LocationShareCard: React.FC<LocationShareCardProps> = ({ safetyId }
         console.warn('Geolocation permission error:', error);
         if (error.code === error.PERMISSION_DENIED) {
           setStatus('denied');
+          // Still log that a scan occurred but location was denied
+          scanService.recordScanEvent({
+            safety_id: safetyId,
+            latitude: null,
+            longitude: null,
+            permission_granted: false,
+          }).catch(console.error);
         } else {
           setStatus('error');
           setErrorMessage(error.message || 'Unable to retrieve location.');

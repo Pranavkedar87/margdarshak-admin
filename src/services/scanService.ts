@@ -61,8 +61,9 @@ export const scanService = {
    */
   async recordScanEvent(params: {
     safety_id: string;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
+    permission_granted: boolean;
   }): Promise<{ success: boolean; scanned_at: string }> {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase configuration is missing. Cannot record scan event.');
@@ -78,6 +79,7 @@ export const scanService = {
           safety_id: params.safety_id,
           latitude: params.latitude,
           longitude: params.longitude,
+          permission_granted: params.permission_granted,
           scanner_user_agent: userAgent,
         }
       });
@@ -109,6 +111,7 @@ export const scanService = {
         latitude: params.latitude,
         longitude: params.longitude,
         location_name: null, // Never fake location name
+        permission_granted: params.permission_granted,
         scanned_at: now,
         scanner_user_agent: userAgent,
         scan_status: 'RECORDED',
@@ -119,16 +122,18 @@ export const scanService = {
       throw insertErr;
     }
 
-    // Update safety_profiles last scan fields
-    await supabase
-      .from('safety_profiles')
-      .update({
-        last_scanned_at: now,
-        last_scan_latitude: params.latitude,
-        last_scan_longitude: params.longitude,
-        last_scan_location: null,
-      })
-      .eq('id', profile.id);
+    // Update safety_profiles last scan fields (only if coordinates were provided)
+    if (params.latitude !== null && params.longitude !== null) {
+      await supabase
+        .from('safety_profiles')
+        .update({
+          last_scanned_at: now,
+          last_scan_latitude: params.latitude,
+          last_scan_longitude: params.longitude,
+          last_scan_location: null,
+        })
+        .eq('id', profile.id);
+    }
 
     return { success: true, scanned_at: now };
   }
