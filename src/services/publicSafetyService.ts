@@ -62,7 +62,7 @@ export const publicSafetyService = {
     // 3. Third fallback: Client-side safe projection (Zero Private Data Exposure)
     const { data: profile, error: profErr } = await supabase
       .from('safety_profiles')
-      .select('id, safety_id, profile_type, name, photo_url, status, qr_status')
+      .select('id, safety_id, profile_type, name, photo_url, status, qr_status, last_scanned_at, last_scan_latitude, last_scan_longitude, last_scan_location')
       .eq('safety_id', cleanSafetyId)
       .maybeSingle();
 
@@ -92,12 +92,19 @@ export const publicSafetyService = {
       const selectFields = [
         'full_name',
         'age',
+        'gender',
         'relationship',
         'blood_group',
+        'city',
+        'state',
         'medical_conditions',
         'allergies',
         'special_needs',
         'emergency_instructions',
+        'guardian_name',
+        'guardian_relationship',
+        'secondary_contact_name',
+        'secondary_contact_phone',
         ...(canAccessContact ? ['guardian_phone'] : [])
       ].join(', ');
 
@@ -109,7 +116,7 @@ export const publicSafetyService = {
 
       const family = data as any;
 
-      // Sanitize phone number strictly for tel: action (preserve leading +, strip other non-digits)
+      // Sanitize primary guardian phone strictly for tel: action (preserve leading +, strip other non-digits)
       let sanitizedActionPhone: string | null = null;
       if (canAccessContact && family?.guardian_phone) {
         const raw = String(family.guardian_phone).trim();
@@ -120,6 +127,29 @@ export const publicSafetyService = {
         }
       }
 
+      // Sanitize secondary contact phone if available
+      let sanitizedSecondaryPhone: string | null = null;
+      let secondaryName: string | null = family?.secondary_contact_name || null;
+      const rawSec = family?.secondary_contact_phone ? String(family.secondary_contact_phone).trim() : null;
+      if (rawSec) {
+        const hasPlus = rawSec.startsWith('+');
+        const digits = rawSec.replace(/\D/g, '');
+        if (digits.length >= 7) {
+          sanitizedSecondaryPhone = hasPlus ? `+${digits}` : digits;
+        }
+      } else if (family?.secondary_contact_name) {
+        // If secondary_contact_name holds digits directly
+        const rawName = String(family.secondary_contact_name).trim();
+        const digits = rawName.replace(/\D/g, '');
+        if (digits.length >= 10 && !/[a-zA-Z]/.test(rawName)) {
+          const hasPlus = rawName.startsWith('+');
+          sanitizedSecondaryPhone = hasPlus ? `+${digits}` : digits;
+          secondaryName = 'Emergency Contact';
+        }
+      }
+
+      const district = [family?.city, family?.state].filter(Boolean).join(', ') || null;
+
       return {
         safety_id: profile.safety_id,
         profile_type: 'DEPENDENT',
@@ -128,15 +158,26 @@ export const publicSafetyService = {
         name: family?.full_name || profile.name,
         photo_url: profile.photo_url,
         age: family?.age,
+        gender: family?.gender,
         relationship: family?.relationship,
         blood_group: family?.blood_group,
+        district,
+        guardian_name: family?.guardian_name || 'Primary Guardian',
+        guardian_relationship: family?.guardian_relationship || 'Parent / Primary Guardian',
+        guardian_action_phone: sanitizedActionPhone,
+        secondary_contact_name: secondaryName,
+        secondary_contact_relationship: 'Secondary Emergency Contact',
+        secondary_contact_action_phone: sanitizedSecondaryPhone,
         emergency_info: {
           critical_allergies: family?.allergies,
           medical_alert: family?.medical_conditions,
           special_assistance: family?.special_needs,
           emergency_instructions: family?.emergency_instructions,
         },
-        guardian_action_phone: sanitizedActionPhone,
+        last_scanned_at: profile.last_scanned_at,
+        last_scan_latitude: profile.last_scan_latitude ? Number(profile.last_scan_latitude) : null,
+        last_scan_longitude: profile.last_scan_longitude ? Number(profile.last_scan_longitude) : null,
+        last_scan_location: profile.last_scan_location,
       };
     } else {
       // ACCESSORY
@@ -153,6 +194,10 @@ export const publicSafetyService = {
         qr_status: profile.qr_status,
         name: acc?.accessory_name || profile.name,
         photo_url: acc?.photo_url || profile.photo_url,
+        last_scanned_at: profile.last_scanned_at,
+        last_scan_latitude: profile.last_scan_latitude ? Number(profile.last_scan_latitude) : null,
+        last_scan_longitude: profile.last_scan_longitude ? Number(profile.last_scan_longitude) : null,
+        last_scan_location: profile.last_scan_location,
         accessory: {
           item_name: acc?.accessory_name || profile.name,
           accessory_type: acc?.accessory_type,

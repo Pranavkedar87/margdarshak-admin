@@ -5,7 +5,6 @@ import { publicSafetyService } from '../../services/publicSafetyService';
 import { PublicSafetyResponse } from '../../types/database';
 import { DependentView } from '../../components/public/DependentView';
 import { AccessoryView } from '../../components/public/AccessoryView';
-import { LocationShareCard } from '../../components/public/LocationShareCard';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 
 export const PublicSafetyPage: React.FC = () => {
@@ -134,9 +133,6 @@ export const PublicSafetyPage: React.FC = () => {
             ) : (
               <AccessoryView data={profile} />
             )}
-
-            {/* Browser Geolocation Sharing Card */}
-            <LocationShareCard safetyId={profile.safety_id} />
           </div>
         ) : null}
       </div>

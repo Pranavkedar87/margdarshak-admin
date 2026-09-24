@@ -103,16 +103,27 @@ export interface PublicSafetyResponse {
   photo_url?: string | null;
   // Dependent safe fields
   age?: number | null;
+  gender?: string | null;
   relationship?: string | null;
   blood_group?: string | null;
+  district?: string | null;
+  guardian_name?: string | null;
+  guardian_relationship?: string | null;
+  guardian_action_phone?: string | null;
+  secondary_contact_name?: string | null;
+  secondary_contact_relationship?: string | null;
+  secondary_contact_action_phone?: string | null;
   emergency_info?: {
     critical_allergies?: string | null;
     medical_alert?: string | null;
     special_assistance?: string | null;
     emergency_instructions?: string | null;
   } | null;
-  // Controlled emergency contact action field (Only for verified active tel: action)
-  guardian_action_phone?: string | null;
+  // Telemetry safe fields
+  last_scanned_at?: string | null;
+  last_scan_latitude?: number | null;
+  last_scan_longitude?: number | null;
+  last_scan_location?: string | null;
   // Accessory safe fields
   accessory?: {
     item_name: string;

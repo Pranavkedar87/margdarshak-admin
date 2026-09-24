@@ -1,127 +1,142 @@
 import React, { useState } from 'react';
-import { Shield, Package, Phone, Tag } from 'lucide-react';
+import { Shield, Package, Tag, Phone, ArrowLeft } from 'lucide-react';
 import { PublicSafetyResponse } from '../../types/database';
+import { DetectedLocationCard } from './DetectedLocationCard';
+import { EmergencyAssistanceCard } from './EmergencyAssistanceCard';
 
 interface AccessoryViewProps {
   data: PublicSafetyResponse;
 }
 
 export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
-  const [showContactModal, setShowContactModal] = useState(false);
+  const [showReporting, setShowReporting] = useState(false);
   const acc = data.accessory;
 
   return (
     <div className="space-y-4">
-      {/* Identity Card */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm text-center">
+      {/* 1. Item Identity Card */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-xs text-center space-y-3">
         {data.photo_url ? (
           <img
             src={data.photo_url}
             alt={data.name}
-            className="w-32 h-32 rounded-2xl object-cover mx-auto mb-3 border border-gray-200 shadow-sm"
+            className="w-32 h-32 rounded-2xl object-cover mx-auto border-2 border-white shadow-sm ring-2 ring-gray-100"
           />
         ) : (
-          <div className="w-24 h-24 rounded-2xl bg-amber-50 text-[#CA7A00] mx-auto mb-3 flex items-center justify-center border border-amber-200">
+          <div className="w-24 h-24 rounded-2xl bg-amber-50 text-[#CA7A00] mx-auto flex items-center justify-center border border-amber-200 shadow-xs">
             <Package className="w-10 h-10" />
           </div>
         )}
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#2844A8] text-xs font-bold mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#2844A8] text-xs font-bold">
           <Shield className="w-3.5 h-3.5" />
-          Registered Travel Item
+          <span>REGISTERED TRAVEL ITEM</span>
         </div>
 
-        <h2 className="text-xl font-black text-gray-900">{acc?.item_name || data.name}</h2>
-        <p className="text-xs font-mono font-bold text-[#CA7A00] mt-0.5">
-          {data.safety_id}
-        </p>
+        <div>
+          <h2 className="text-xl font-black text-gray-900 leading-tight">
+            {acc?.item_name || data.name}
+          </h2>
+          <div className="inline-block mt-1 px-2.5 py-0.5 rounded-md bg-[#CA7A00]/10 text-[#CA7A00] font-mono font-bold text-xs">
+            {data.safety_id}
+          </div>
+        </div>
 
         {/* Item attributes */}
-        <div className="grid grid-cols-2 gap-2 mt-4 text-left text-xs bg-gray-50 p-3 rounded-xl border border-gray-100">
+        <div className="grid grid-cols-2 gap-2 text-left text-xs bg-gray-50 p-3 rounded-xl border border-gray-100">
           <div>
-            <span className="text-gray-400 block text-[10px]">Type</span>
-            <span className="font-semibold text-gray-800">{acc?.accessory_type || 'General'}</span>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Type</span>
+            <span className="font-semibold text-gray-800">{acc?.accessory_type || 'General Luggage'}</span>
           </div>
           <div>
-            <span className="text-gray-400 block text-[10px]">Brand / Model</span>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Brand / Model</span>
             <span className="font-semibold text-gray-800">
               {[acc?.brand, acc?.model].filter(Boolean).join(' ') || 'Standard'}
             </span>
           </div>
           {acc?.color && (
             <div>
-              <span className="text-gray-400 block text-[10px]">Color</span>
+              <span className="text-gray-400 block text-[10px] uppercase font-bold">Color</span>
               <span className="font-semibold text-gray-800">{acc.color}</span>
             </div>
           )}
+          <div>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Status</span>
+            <span className="font-semibold text-emerald-700">Active Tag</span>
+          </div>
         </div>
 
         {acc?.description && (
-          <div className="mt-3 text-left p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs">
+          <div className="text-left p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs">
             <span className="text-amber-900 font-bold block mb-0.5">Description</span>
             <p className="text-gray-700 leading-relaxed">{acc.description}</p>
           </div>
         )}
       </div>
 
-      {/* Found Item Actions */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm text-center space-y-3">
-        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+      {/* 2. Detected Location Card (Real coordinates & Google Maps link) */}
+      <DetectedLocationCard
+        safetyId={data.safety_id}
+        initialLat={data.last_scan_latitude}
+        initialLng={data.last_scan_longitude}
+      />
+
+      {/* 3. Found This Item? Action Card */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-xs space-y-3">
+        <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider text-center">
           Found This Item?
-        </h4>
+        </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button
-            onClick={() => setShowContactModal(true)}
-            className="flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1F368A] transition-colors shadow-xs"
-          >
-            <Phone className="w-4 h-4" />
-            <span>Contact Owner</span>
-          </button>
-          <button
-            onClick={() => setShowContactModal(true)}
-            className="flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-          >
-            <Tag className="w-4 h-4" />
-            <span>I Found This Item</span>
-          </button>
-        </div>
+        {!showReporting ? (
+          <div className="space-y-2">
+            <button
+              onClick={() => setShowReporting(true)}
+              className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1E3482] transition-colors shadow-xs"
+            >
+              <Tag className="w-4 h-4" />
+              <span>Report Found Item / Recovery Assistance</span>
+            </button>
 
-        <p className="text-[11px] text-gray-400">
-          Owner contact credentials are protected through MargDarshak secure relay.
-        </p>
-      </div>
-
-      {/* Relay Modal */}
-      {showContactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center space-y-4 border border-gray-200 shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-blue-50 text-[#2844A8] mx-auto flex items-center justify-center">
-              <Phone className="w-6 h-6" />
-            </div>
-
-            <h3 className="text-base font-bold text-gray-900">
-              MargDarshak Item Recovery
-            </h3>
-
-            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-950 text-left space-y-1">
+            <p className="text-[11px] text-gray-400 text-center">
+              Owner identity is protected through the MargDarshak recovery grid.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3 animate-in fade-in duration-150">
+            <div className="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200 text-xs text-blue-950 space-y-2">
               <span className="font-bold block text-[#2844A8]">
-                Item Recovery Assistance
+                Item Recovery Instructions
               </span>
               <p className="text-[11px] text-blue-900 leading-relaxed">
-                Owner contact credentials are kept private. Please surrender found luggage or item to the nearest MargDarshak Sevak desk, station master, or police with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
+                Please hand over this item to the nearest MargDarshak Sevak assistance desk, railway station master, or local police station with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
+              </p>
+              <p className="text-[11px] text-blue-900 leading-relaxed">
+                The registered owner will be notified with the recorded recovery location.
               </p>
             </div>
 
-            <button
-              onClick={() => setShowContactModal(false)}
-              className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-colors"
-            >
-              Close
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href="tel:112"
+                className="flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl font-bold text-xs text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-2xs"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call 112 Help</span>
+              </a>
+              <button
+                onClick={() => setShowReporting(false)}
+                className="flex items-center justify-center space-x-1 py-2.5 px-3 rounded-xl font-semibold text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Close</span>
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* 4. Emergency Assistance Panel */}
+      <EmergencyAssistanceCard safetyId={data.safety_id} />
     </div>
   );
 };
