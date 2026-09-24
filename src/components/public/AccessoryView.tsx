@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Package, Phone, Navigation, ExternalLink } from 'lucide-react';
+import { Shield, Package, Phone } from 'lucide-react';
 import { PublicSafetyResponse } from '../../types/database';
 import { DetectedLocationCard } from './DetectedLocationCard';
 import { EmergencyAssistanceCard } from './EmergencyAssistanceCard';
@@ -73,11 +73,10 @@ export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
         )}
       </div>
 
-      {/* 2. Detected Location Card (Real coordinates & Google Maps link) */}
+      {/* 2. Current Location / Send Finder Location Card */}
       <DetectedLocationCard
         safetyId={data.safety_id}
-        initialLat={data.last_scan_latitude}
-        initialLng={data.last_scan_longitude}
+        helperText="Send your current location to help the owner locate this item."
       />
 
       {/* 3. Found This Item? Action Card */}
@@ -105,19 +104,6 @@ export const AccessoryView: React.FC<AccessoryViewProps> = ({ data }) => {
                 Owner direct phone is not available for this item. Please hand over found property to the nearest MargDarshak Sevak assistance desk, station master, or police with Safety ID: <strong className="font-mono text-gray-900">{data.safety_id}</strong>.
               </p>
             </div>
-          )}
-
-          {data.last_scan_latitude !== null && data.last_scan_longitude !== null && (
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${data.last_scan_latitude},${data.last_scan_longitude}`}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors shadow-2xs"
-            >
-              <Navigation className="w-3.5 h-3.5 text-[#2844A8]" />
-              <span>Track Latest Location</span>
-              <ExternalLink className="w-3 h-3 opacity-60" />
-            </a>
           )}
 
           <p className="text-[11px] text-gray-400 text-center">

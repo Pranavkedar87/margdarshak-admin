@@ -79,8 +79,7 @@ export const DependentView: React.FC<DependentViewProps> = ({ data }) => {
       {/* 2. Detected Location Card (Immediately after hero card) */}
       <DetectedLocationCard
         safetyId={data.safety_id}
-        initialLat={data.last_scan_latitude}
-        initialLng={data.last_scan_longitude}
+        helperText="Send your current location to the verified safety network so the family can locate this person."
       />
 
       {/* 3. Emergency Contacts Card */}
