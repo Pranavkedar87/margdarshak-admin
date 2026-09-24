@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { scanService } from '../../services/scanService';
 
@@ -11,7 +11,9 @@ export const LocationShareCard: React.FC<LocationShareCardProps> = ({ safetyId }
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [recordedCoords, setRecordedCoords] = useState<{ lat: number; lng: number } | null>(null);
 
-  const handleShareLocation = () => {
+  const hasAttempted = React.useRef(false);
+
+  const handleShareLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setStatus('error');
       setErrorMessage('Geolocation is not supported by your browser.');
@@ -55,7 +57,14 @@ export const LocationShareCard: React.FC<LocationShareCardProps> = ({ safetyId }
         maximumAge: 0,
       }
     );
-  };
+  }, [safetyId]);
+
+  useEffect(() => {
+    if (!hasAttempted.current) {
+      hasAttempted.current = true;
+      handleShareLocation();
+    }
+  }, [handleShareLocation]);
 
   return (
     <div className="bg-white rounded-2xl p-5 border border-amber-200/70 shadow-sm space-y-3">

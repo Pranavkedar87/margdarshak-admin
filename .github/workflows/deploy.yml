@@ -36,6 +36,7 @@ jobs:
           VITE_SUPABASE_URL: "https://jcinlxylijhteujzxyow.supabase.co"
           VITE_PUBLIC_APP_URL: "https://pranavkedar87.github.io/margdarshak-admin"
           VITE_SUPABASE_ANON_KEY: sb_publishable_wTSRXCVcYHiOh0wXWySf3w_0bjpvrZO
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
