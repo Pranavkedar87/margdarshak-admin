@@ -111,6 +111,8 @@ export interface PublicSafetyResponse {
     special_assistance?: string | null;
     emergency_instructions?: string | null;
   } | null;
+  // Controlled emergency contact action field (Only for verified active tel: action)
+  guardian_action_phone?: string | null;
   // Accessory safe fields
   accessory?: {
     item_name: string;

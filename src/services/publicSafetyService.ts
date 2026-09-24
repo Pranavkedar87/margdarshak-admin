@@ -84,11 +84,36 @@ export const publicSafetyService = {
     }
 
     if (profile.profile_type === 'DEPENDENT') {
+      // Security rule: Only fetch guardian_phone if profile is VERIFIED and ACTIVE
+      const canAccessContact = profile.status === 'VERIFIED' && profile.qr_status === 'ACTIVE';
+      const selectFields = [
+        'full_name',
+        'age',
+        'relationship',
+        'blood_group',
+        'medical_conditions',
+        'allergies',
+        'special_needs',
+        'emergency_instructions',
+        ...(canAccessContact ? ['guardian_phone'] : [])
+      ].join(', ');
+
       const { data: family } = await supabase
         .from('family_safety_profiles')
-        .select('full_name, age, relationship, blood_group, medical_conditions, allergies, special_needs, emergency_instructions')
+        .select(selectFields)
         .eq('safety_profile_id', profile.id)
         .maybeSingle();
+
+      // Sanitize phone number strictly for tel: action (preserve leading +, strip other non-digits)
+      let sanitizedActionPhone: string | null = null;
+      if (canAccessContact && family?.guardian_phone) {
+        const raw = String(family.guardian_phone).trim();
+        const hasPlus = raw.startsWith('+');
+        const digits = raw.replace(/\D/g, '');
+        if (digits.length >= 7) {
+          sanitizedActionPhone = hasPlus ? `+${digits}` : digits;
+        }
+      }
 
       return {
         safety_id: profile.safety_id,
@@ -105,7 +130,8 @@ export const publicSafetyService = {
           medical_alert: family?.medical_conditions,
           special_assistance: family?.special_needs,
           emergency_instructions: family?.emergency_instructions,
-        }
+        },
+        guardian_action_phone: sanitizedActionPhone,
       };
     } else {
       // ACCESSORY

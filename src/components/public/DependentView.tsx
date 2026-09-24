@@ -114,16 +114,26 @@ export const DependentView: React.FC<DependentViewProps> = ({ data }) => {
           Emergency Assistance
         </h4>
 
-        <button
-          onClick={() => setShowContactModal(true)}
-          className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1F368A] transition-colors shadow-xs"
-        >
-          <Phone className="w-4 h-4" />
-          <span>Contact Verified Guardian</span>
-        </button>
+        {data.guardian_action_phone ? (
+          <a
+            href={`tel:${data.guardian_action_phone}`}
+            className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1F368A] transition-colors shadow-xs"
+          >
+            <Phone className="w-4 h-4" />
+            <span>Call Guardian</span>
+          </a>
+        ) : (
+          <button
+            onClick={() => setShowContactModal(true)}
+            className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#2844A8] hover:bg-[#1F368A] transition-colors shadow-xs"
+          >
+            <Phone className="w-4 h-4" />
+            <span>Emergency Assistance</span>
+          </button>
+        )}
 
         <p className="text-[11px] text-gray-400">
-          Phone numbers are masked to safeguard the family's privacy.
+          Direct dial connects to registered guardian • Numbers are protected
         </p>
       </div>
 
