@@ -111,7 +111,7 @@ export const scanService = {
         location_name: null, // Never fake location name
         scanned_at: now,
         scanner_user_agent: userAgent,
-        status: 'RECORDED',
+        scan_status: 'RECORDED',
       });
 
     if (insertErr) {

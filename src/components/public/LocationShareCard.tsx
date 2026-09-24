@@ -36,9 +36,8 @@ export const LocationShareCard: React.FC<LocationShareCardProps> = ({ safetyId }
           setStatus('success');
         } catch (err: any) {
           console.error('Scan recording error:', err);
-          // Even if cloud recording fails, coordinates were acquired
-          setRecordedCoords({ lat, lng });
-          setStatus('success');
+          setStatus('error');
+          setErrorMessage(err.message || 'Failed to record location.');
         }
       },
       (error) => {
