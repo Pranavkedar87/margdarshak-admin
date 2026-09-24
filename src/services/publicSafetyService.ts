@@ -98,11 +98,13 @@ export const publicSafetyService = {
         ...(canAccessContact ? ['guardian_phone'] : [])
       ].join(', ');
 
-      const { data: family } = await supabase
+      const { data } = await supabase
         .from('family_safety_profiles')
         .select(selectFields)
         .eq('safety_profile_id', profile.id)
         .maybeSingle();
+
+      const family = data as any;
 
       // Sanitize phone number strictly for tel: action (preserve leading +, strip other non-digits)
       let sanitizedActionPhone: string | null = null;
